@@ -27,20 +27,31 @@
         <!-- Main Preview Area -->
         <main class="preview-viewport">
             <div class="a4-container">
-                <div class="header-section">
-                    <div class="header-left">
-                        <!-- Date Pill -->
-                        <div class="date-pill" id="date-pill-trigger" title="Click to change date">
-                            <span class="day-text" id="header-day">FRIDAY</span>
-                            <span class="date-text" id="header-date">24/04/2026</span>
+                <div class="header-section" id="header-section">
+                    <!-- Option 1: Default Text & Logo Header -->
+                    <div class="header-default-content" id="header-default-content">
+                        <div class="header-left">
+                            <!-- Date Pill -->
+                            <div class="date-pill" id="date-pill-trigger" title="Click to change date">
+                                <span class="day-text" id="header-day">FRIDAY</span>
+                                <span class="date-text" id="header-date">24/04/2026</span>
+                            </div>
+                            <!-- Title (editable) -->
+                            <h1 class="header-title" id="header-title" contenteditable="true" spellcheck="false" title="Click to edit title">Todays Essentials</h1>
                         </div>
-                        <!-- Title (editable) -->
-                        <h1 class="header-title" id="header-title" contenteditable="true" spellcheck="false" title="Click to edit title">Todays Essentials</h1>
+                        <div class="header-right">
+                            <!-- Logo -->
+                            <div class="logo-container" id="header-logo-trigger" title="Click to upload custom logo">
+                                <div id="logo-display-wrapper"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="header-right">
-                        <!-- Logo -->
-                        <div class="logo-container" id="header-logo-trigger" title="Click to upload custom logo">
-                            <div id="logo-display-wrapper"></div>
+
+                    <!-- Option 2: Custom Banner Image Header -->
+                    <div class="header-banner-content" id="header-banner-content" style="display: none;">
+                        <img id="custom-banner-img" src="" alt="Custom Header Banner" style="display: none; width: 100%; height: 100%; object-fit: contain;">
+                        <div id="banner-placeholder" class="banner-placeholder" title="Click to upload custom banner image">
+                            <span>📷 Click to upload custom header banner image</span>
                         </div>
                     </div>
                 </div>
@@ -73,6 +84,21 @@
             <!-- Tab 1: Design Settings -->
             <div id="tab-design-content" class="tab-content active">
                 <div class="sidebar-section">
+                    <h3>Header Mode</h3>
+                    <div class="header-type-toggle" style="display: flex; gap: 6px; margin-bottom: 6px;">
+                        <button id="header-type-default-btn" class="btn layout-btn active" style="flex: 1; padding: 6px;">Text Header</button>
+                        <button id="header-type-banner-btn" class="btn layout-btn" style="flex: 1; padding: 6px;">Custom Banner</button>
+                    </div>
+                    <div id="custom-banner-controls" style="display: none;">
+                        <div class="logo-control-group">
+                            <button id="banner-trigger" class="btn btn-secondary-outline" style="width: 100%;">Upload Custom Banner</button>
+                            <input type="file" id="hidden-banner-input" accept="image/*" style="display: none;">
+                        </div>
+                        <button id="reset-banner-btn" class="btn btn-danger-outline" style="width: 100%; margin-top: 6px;">Remove Custom Banner</button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section" id="section-offer-period">
                     <h3>Offer Period</h3>
                     <div class="date-inputs-row">
                         <div class="control-group" style="flex: 1;">
@@ -86,7 +112,7 @@
                     </div>
                 </div>
 
-                <div class="sidebar-section">
+                <div class="sidebar-section" id="section-poster-title">
                     <h3>Poster Title</h3>
                     <div class="control-group">
                         <input type="text" id="control-title-input" placeholder="e.g. Todays Essentials">
@@ -100,7 +126,7 @@
                     </div>
                 </div>
 
-                <div class="sidebar-section">
+                <div class="sidebar-section" id="section-store-logo">
                     <h3>Store Logo</h3>
                     <div class="logo-control-group">
                         <button id="logo-trigger" class="btn btn-secondary-outline" style="flex: 1;">Upload Logo</button>

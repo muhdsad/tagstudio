@@ -103,6 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedDate = localStorage.getItem('supermarket_selected_date') || getTodayDateString();
     let selectedEndDate = localStorage.getItem('supermarket_selected_end_date') || '';
     let customLogo = localStorage.getItem('supermarket_custom_logo') || null;
+    let headerType = localStorage.getItem('supermarket_header_type') || 'default'; // 'default' or 'banner'
+    let customBanner = localStorage.getItem('supermarket_custom_banner') || null;
     let activeLayout = localStorage.getItem('supermarket_active_layout') || '12';
 
     // Product list state
@@ -171,6 +173,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const layout12LandscapeBtn = document.getElementById('layout-12-landscape-btn');
     const layout16LandscapeBtn = document.getElementById('layout-16-landscape-btn');
     const headerLogoTrigger = document.getElementById('header-logo-trigger');
+
+    // Header Mode Elements
+    const headerTypeDefaultBtn = document.getElementById('header-type-default-btn');
+    const headerTypeBannerBtn = document.getElementById('header-type-banner-btn');
+    const customBannerControls = document.getElementById('custom-banner-controls');
+    const bannerTrigger = document.getElementById('banner-trigger');
+    const hiddenBannerInput = document.getElementById('hidden-banner-input');
+    const resetBannerBtn = document.getElementById('reset-banner-btn');
+    const headerDefaultContent = document.getElementById('header-default-content');
+    const headerBannerContent = document.getElementById('header-banner-content');
+    const customBannerImg = document.getElementById('custom-banner-img');
+    const bannerPlaceholder = document.getElementById('banner-placeholder');
+    const sectionOfferPeriod = document.getElementById('section-offer-period');
+    const sectionPosterTitle = document.getElementById('section-poster-title');
+    const sectionStoreLogo = document.getElementById('section-store-logo');
 
     // Tab buttons and content containers
     const tabDesignBtn = document.getElementById('tab-design-btn');
@@ -321,6 +338,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Render Header Mode (Text Header vs Custom Banner Image)
+    function renderHeaderMode() {
+        const headerSectionEl = document.getElementById('header-section');
+        if (headerType === 'banner') {
+            if (headerSectionEl) headerSectionEl.classList.add('is-banner-mode');
+            if (headerTypeDefaultBtn) headerTypeDefaultBtn.classList.remove('active');
+            if (headerTypeBannerBtn) headerTypeBannerBtn.classList.add('active');
+            if (customBannerControls) customBannerControls.style.display = 'block';
+            if (headerDefaultContent) headerDefaultContent.style.display = 'none';
+            if (headerBannerContent) headerBannerContent.style.display = 'flex';
+            if (sectionOfferPeriod) sectionOfferPeriod.style.display = 'none';
+            if (sectionPosterTitle) sectionPosterTitle.style.display = 'none';
+            if (sectionStoreLogo) sectionStoreLogo.style.display = 'none';
+
+            if (customBanner) {
+                if (customBannerImg) {
+                    customBannerImg.src = customBanner;
+                    customBannerImg.style.display = 'block';
+                }
+                if (bannerPlaceholder) bannerPlaceholder.style.display = 'none';
+            } else {
+                if (customBannerImg) customBannerImg.style.display = 'none';
+                if (bannerPlaceholder) bannerPlaceholder.style.display = 'flex';
+            }
+        } else {
+            if (headerSectionEl) headerSectionEl.classList.remove('is-banner-mode');
+            if (headerTypeDefaultBtn) headerTypeDefaultBtn.classList.add('active');
+            if (headerTypeBannerBtn) headerTypeBannerBtn.classList.remove('active');
+            if (customBannerControls) customBannerControls.style.display = 'none';
+            if (headerDefaultContent) headerDefaultContent.style.display = 'flex';
+            if (headerBannerContent) headerBannerContent.style.display = 'none';
+            if (sectionOfferPeriod) sectionOfferPeriod.style.display = 'block';
+            if (sectionPosterTitle) sectionPosterTitle.style.display = 'block';
+            if (sectionStoreLogo) sectionStoreLogo.style.display = 'block';
+        }
+    }
+
     // Render Logo
     function renderLogo() {
         if (customLogo) {
@@ -406,17 +460,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isLongPrice = item.sellingPrice && item.sellingPrice.toString().length > 5;
                 const priceClass = isLongPrice ? 'price-value long-price' : 'price-value';
 
-                // Format unit to match studio style e.g. "1 KG" or "500 G"
-                let unitDisplay = (item.unit || '').trim();
-                if (unitDisplay) {
-                    if (unitDisplay.startsWith('/')) {
-                        unitDisplay = unitDisplay.substring(1).trim();
-                    }
-                    if (/^[A-Za-z]+$/.test(unitDisplay)) {
-                        unitDisplay = `1 ${unitDisplay}`;
-                    }
-                }
-
                 // Check MRP & Savings calculations
                 const mrpVal = parseFloat(item.mrp);
                 const spVal = parseFloat(item.sellingPrice);
@@ -424,29 +467,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 let saveBadgeHtml = '';
 
                 if (mrpVal && !isNaN(mrpVal) && mrpVal > 0) {
-                    mrpBadgeHtml = `<div class="mrp-badge">MRP <span class="mrp-strike">${mrpVal.toFixed(2)}</span></div>`;
+                    mrpBadgeHtml = `<div class="mrp-badge">MRP&nbsp;<span class="mrp-strike">${mrpVal.toFixed(2)}</span></div>`;
                 }
 
                 if (mrpVal && spVal && !isNaN(mrpVal) && !isNaN(spVal) && mrpVal > spVal) {
                     const diff = mrpVal - spVal;
                     const savings = diff % 1 === 0 ? diff.toFixed(0) : diff.toFixed(2);
-                    const discountPct = Math.round((diff / mrpVal) * 100);
-                    const discountText = discountPct > 0 ? `${discountPct}% OFF` : `SAVE ₹${savings}`;
-                    saveBadgeHtml = `<div class="save-badge">${discountText}</div>`;
+                    saveBadgeHtml = `<div class="save-badge">SMILE SAVE ₹${savings}</div>`;
                 }
 
-                // Format selling price with Rupee symbol
+                // Format selling price
                 let priceStr = item.sellingPrice ? item.sellingPrice.toString().trim() : '';
                 if (priceStr && !priceStr.startsWith('₹') && !priceStr.startsWith('Rs')) {
                     const parsedPrice = parseFloat(priceStr);
                     if (!isNaN(parsedPrice)) {
-                        priceStr = '₹' + parsedPrice.toFixed(2);
-                    } else {
-                        priceStr = '₹' + priceStr;
+                        priceStr = parsedPrice.toFixed(2);
                     }
                 } else if (!priceStr) {
-                    priceStr = '₹0.00';
+                    priceStr = '0.00';
                 }
+
+                // Clean up unit display e.g. "KG" or "/KG" -> "/KG"
+                let unitClean = (item.unit || '').trim();
+                if (unitClean.startsWith('/')) {
+                    unitClean = unitClean.substring(1).trim();
+                }
+                unitClean = unitClean.replace(/^1\s*/i, '').toUpperCase();
 
                 card.onclick = () => openEditor(index);
                 card.innerHTML = `
@@ -458,9 +504,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="card-details-wrapper">
                         <h2 class="${titleClass}">${item.name || ''}</h2>
-                        ${unitDisplay ? `<div class="unit-value">${unitDisplay}</div>` : ''}
                         <div class="price-row">
                             <span class="${priceClass}">${priceStr}</span>
+                            ${unitClean ? `<span class="unit-value">/${unitClean}</span>` : ''}
                         </div>
                     </div>
                 `;
@@ -812,8 +858,73 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Logo upload interaction
+    // Header Mode & Custom Banner logic
+    renderHeaderMode();
     renderLogo();
+
+    if (headerTypeDefaultBtn) {
+        headerTypeDefaultBtn.addEventListener('click', () => {
+            headerType = 'default';
+            localStorage.setItem('supermarket_header_type', 'default');
+            renderHeaderMode();
+        });
+    }
+
+    if (headerTypeBannerBtn) {
+        headerTypeBannerBtn.addEventListener('click', () => {
+            headerType = 'banner';
+            localStorage.setItem('supermarket_header_type', 'banner');
+            renderHeaderMode();
+        });
+    }
+
+    if (bannerTrigger) {
+        bannerTrigger.addEventListener('click', () => {
+            if (hiddenBannerInput) hiddenBannerInput.click();
+        });
+    }
+
+    if (bannerPlaceholder) {
+        bannerPlaceholder.addEventListener('click', () => {
+            if (hiddenBannerInput) hiddenBannerInput.click();
+        });
+    }
+
+    if (customBannerImg) {
+        customBannerImg.addEventListener('click', () => {
+            if (hiddenBannerInput) hiddenBannerInput.click();
+        });
+    }
+
+    if (hiddenBannerInput) {
+        hiddenBannerInput.addEventListener('change', async function () {
+            if (this.files && this.files[0]) {
+                try {
+                    // Compress custom header banner (1600x600 max) for crisp printing
+                    const compressed = await compressImage(this.files[0], 1600, 600, 0.9);
+                    if (compressed) {
+                        customBanner = compressed;
+                        localStorage.setItem('supermarket_custom_banner', customBanner);
+                        headerType = 'banner';
+                        localStorage.setItem('supermarket_header_type', 'banner');
+                        renderHeaderMode();
+                    }
+                } catch (err) {
+                    console.error('Banner compression failed:', err);
+                }
+            }
+        });
+    }
+
+    if (resetBannerBtn) {
+        resetBannerBtn.addEventListener('click', () => {
+            customBanner = null;
+            localStorage.removeItem('supermarket_custom_banner');
+            headerType = 'default';
+            localStorage.setItem('supermarket_header_type', 'default');
+            renderHeaderMode();
+        });
+    }
 
     if (logoTrigger) {
         logoTrigger.addEventListener('click', () => {
@@ -892,6 +1003,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         onclone: (clonedDoc) => {
                             const imageWrappers = clonedDoc.querySelectorAll('.card-image-wrapper');
                             imageWrappers.forEach(wrapper => {
+                                wrapper.style.position = 'absolute';
+                                wrapper.style.top = '10%';
+                                wrapper.style.left = '4%';
+                                wrapper.style.width = '92%';
+                                wrapper.style.height = '80%';
                                 wrapper.style.transform = 'none';
                                 wrapper.style.webkitTransform = 'none';
                             });
@@ -947,14 +1063,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedDate = getTodayDateString();
                 selectedEndDate = '';
                 customLogo = null;
+                customBanner = null;
+                headerType = 'default';
 
                 localStorage.setItem('supermarket_header_title', headerTitle);
                 localStorage.setItem('supermarket_footer_text', footerText);
                 localStorage.setItem('supermarket_selected_date', selectedDate);
                 localStorage.setItem('supermarket_selected_end_date', selectedEndDate);
                 localStorage.removeItem('supermarket_custom_logo');
+                localStorage.removeItem('supermarket_custom_banner');
+                localStorage.setItem('supermarket_header_type', 'default');
 
                 // Update UI elements
+                renderHeaderMode();
                 headerTitleEl.textContent = headerTitle;
                 if (controlTitleInput) {
                     controlTitleInput.value = headerTitle;
