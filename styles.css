@@ -2463,23 +2463,28 @@ highlight-word {
 .grid-container.layout-12-landscape .mrp-badge { font-size: 12px !important; padding: 2px 6px !important; }
 
 /* Layout-specific Font Size Adjustments for the Condensed Anton Font */
-.grid-container.layout-1 .product-title { font-size: 90px !important; margin: 0 !important; }
+.grid-container.layout-1 .product-title { font-size: 90px !important; margin-top: 40px !important; margin-bottom: 10px !important; }
+.grid-container.layout-1 .price-row { margin-bottom: 20px !important; }
 .grid-container.layout-1 .price-value { font-size: 160px !important; }
 .grid-container.layout-1 .unit-value { font-size: 38px !important; }
 
-.grid-container.layout-2 .product-title { font-size: 70px !important; margin: 0 !important; }
+.grid-container.layout-2 .product-title { font-size: 70px !important; margin-top: 32px !important; margin-bottom: 10px !important; }
+.grid-container.layout-2 .price-row { margin-bottom: 14px !important; }
 .grid-container.layout-2 .price-value { font-size: 120px !important; }
 .grid-container.layout-2 .unit-value { font-size: 30px !important; }
 
-.grid-container.layout-4 .product-title { font-size: 48px !important; margin: 0 !important; }
+.grid-container.layout-4 .product-title { font-size: 48px !important; margin-top: 28px !important; margin-bottom: 6px !important; }
+.grid-container.layout-4 .price-row { margin-bottom: 10px !important; }
 .grid-container.layout-4 .price-value { font-size: 90px !important; }
 .grid-container.layout-4 .unit-value { font-size: 22px !important; }
 
-.grid-container.layout-8 .product-title { font-size: 34px !important; margin: 0 !important; }
+.grid-container.layout-8 .product-title { font-size: 34px !important; margin-top: 24px !important; margin-bottom: 4px !important; }
+.grid-container.layout-8 .price-row { margin-bottom: 8px !important; }
 .grid-container.layout-8 .price-value { font-size: 68px !important; }
 .grid-container.layout-8 .unit-value { font-size: 18px !important; }
 
-.grid-container.layout-12 .product-title { font-size: 36px !important; margin: 0 !important; }
+.grid-container.layout-12 .product-title { font-size: 36px !important; margin-top: 22px !important; margin-bottom: 2px !important; }
+.grid-container.layout-12 .price-row { margin-bottom: 6px !important; }
 .grid-container.layout-12 .price-value { font-size: 60px !important; }
 .grid-container.layout-12 .unit-value { font-size: 18px !important; }
 
@@ -2501,19 +2506,23 @@ highlight-word {
 .grid-container.layout-14 .price-value { font-size: 44px !important; }
 .grid-container.layout-14 .unit-value { font-size: 16px !important; }
 
-.grid-container.layout-2-landscape .product-title { font-size: 75px !important; margin: 0 !important; }
+.grid-container.layout-2-landscape .product-title { font-size: 75px !important; margin-top: 36px !important; margin-bottom: 8px !important; }
+.grid-container.layout-2-landscape .price-row { margin-bottom: 12px !important; }
 .grid-container.layout-2-landscape .price-value { font-size: 130px !important; }
 .grid-container.layout-2-landscape .unit-value { font-size: 32px !important; }
 
-.grid-container.layout-3-landscape .product-title { font-size: 60px !important; margin: 0 !important; }
+.grid-container.layout-3-landscape .product-title { font-size: 60px !important; margin-top: 30px !important; margin-bottom: 6px !important; }
+.grid-container.layout-3-landscape .price-row { margin-bottom: 10px !important; }
 .grid-container.layout-3-landscape .price-value { font-size: 100px !important; }
 .grid-container.layout-3-landscape .unit-value { font-size: 26px !important; }
 
-.grid-container.layout-6-landscape .product-title { font-size: 44px !important; margin: 0 !important; }
+.grid-container.layout-6-landscape .product-title { font-size: 44px !important; margin-top: 26px !important; margin-bottom: 4px !important; }
+.grid-container.layout-6-landscape .price-row { margin-bottom: 8px !important; }
 .grid-container.layout-6-landscape .price-value { font-size: 78px !important; }
 .grid-container.layout-6-landscape .unit-value { font-size: 20px !important; }
 
-.grid-container.layout-8-landscape .product-title { font-size: 36px !important; margin: 0 !important; }
+.grid-container.layout-8-landscape .product-title { font-size: 36px !important; margin-top: 22px !important; margin-bottom: 4px !important; }
+.grid-container.layout-8-landscape .price-row { margin-bottom: 6px !important; }
 .grid-container.layout-8-landscape .price-value { font-size: 64px !important; }
 .grid-container.layout-8-landscape .unit-value { font-size: 18px !important; }
 
@@ -2524,12 +2533,14 @@ highlight-word {
 }
 .grid-container.layout-12-landscape .price-card .product-title {
     font-size: 28px !important;
-    margin: 0 !important;
+    margin-top: 18px !important;
+    margin-bottom: 2px !important;
     text-align: center !important;
     width: 100% !important;
 }
 .grid-container.layout-12-landscape .price-card .price-row {
     justify-content: center !important;
+    margin-bottom: 4px !important;
 }
 .grid-container.layout-12-landscape .price-value { font-size: 52px !important; }
 .grid-container.layout-12-landscape .unit-value { font-size: 16px !important; }
@@ -2537,14 +2548,16 @@ highlight-word {
     display: flex !important;
 }
 /* Layout 16 Specific Overrides */
-.grid-container.layout-16 .product-title { font-size: 26px !important; margin: 0 !important; }
+.grid-container.layout-16 .product-title { font-size: 26px !important; margin-top: 18px !important; margin-bottom: 2px !important; }
+.grid-container.layout-16 .price-row { margin-bottom: 4px !important; }
 .grid-container.layout-16 .price-value { font-size: 48px !important; }
 .grid-container.layout-16 .unit-value { font-size: 15px !important; }
 .grid-container.layout-16 .mrp-badge { font-size: 0.65rem !important; padding: 1.5px 3px !important; }
 .grid-container.layout-16 .save-badge { font-size: 0.65rem !important; padding: 1.5px 3px !important; }
 
 /* Layout 12 Poster Specific Overrides */
-.grid-container.layout-12-poster .product-title { font-size: 38px !important; margin: 0 !important; }
+.grid-container.layout-12-poster .product-title { font-size: 38px !important; margin-top: 22px !important; margin-bottom: 2px !important; }
+.grid-container.layout-12-poster .price-row { margin-bottom: 6px !important; }
 .grid-container.layout-12-poster .price-value { font-size: 64px !important; }
 .grid-container.layout-12-poster .unit-value { font-size: 18px !important; }
 .grid-container.layout-12-poster .mrp-badge { font-size: 0.75rem !important; padding: 2px 4px !important; }
