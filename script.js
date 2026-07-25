@@ -172,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const layout8LandscapeBtn = document.getElementById('layout-8-landscape-btn');
     const layout12LandscapeBtn = document.getElementById('layout-12-landscape-btn');
     const layout16LandscapeBtn = document.getElementById('layout-16-landscape-btn');
+    const layoutCopyBtn = document.getElementById('layout-copy-btn');
     const headerLogoTrigger = document.getElementById('header-logo-trigger');
 
     // Header Mode Elements
@@ -403,7 +404,7 @@ document.addEventListener('DOMContentLoaded', () => {
             limit = 8;
         } else if (activeLayout === '12-landscape') {
             limit = 12;
-        } else if (activeLayout === '16-landscape') {
+        } else if (activeLayout === '16-landscape' || activeLayout === 'copy') {
             limit = 16;
         } else if (activeLayout === '18') {
             limit = 18;
@@ -415,6 +416,9 @@ document.addEventListener('DOMContentLoaded', () => {
         visibleItems.forEach((item, index) => {
             const card = document.createElement('div');
             card.className = 'price-card';
+            if (activeLayout === 'copy' && item.image) {
+                card.classList.add('has-image');
+            }
 
             // Drag and drop target events
             card.addEventListener('dragover', (e) => {
@@ -495,29 +499,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 unitClean = unitClean.replace(/^1\s*/i, '').toUpperCase();
 
                 card.onclick = () => openEditor(index);
-                card.innerHTML = `
-                    <div class="edit-badge">Edit</div>
-                    ${mrpBadgeHtml}
-                    ${saveBadgeHtml}
-                    <div class="card-image-wrapper">
-                        ${item.image ? `<img src="${item.image}" alt="${item.name}">` : '<div class="no-image"></div>'}
-                    </div>
-                    <div class="card-details-wrapper">
-                        <h2 class="${titleClass}">${item.name || ''}</h2>
-                        <div class="price-row">
-                            <span class="${priceClass}">${priceStr}</span>
-                            ${unitClean ? `<span class="unit-value">/${unitClean}</span>` : ''}
+                if (activeLayout === 'copy') {
+                    let copyMrp = mrpVal && !isNaN(mrpVal) && mrpVal > 0 ? `<div class="price-card-mrp">MRP <span style="text-decoration: line-through;">₹${mrpVal.toFixed(2)}</span></div>` : '';
+                    let copySave = mrpVal && spVal && !isNaN(mrpVal) && !isNaN(spVal) && mrpVal > spVal ? `<div class="price-card-save">SMILE SAVE <span class="currency-symbol">₹</span>${(mrpVal - spVal) % 1 === 0 ? (mrpVal - spVal).toFixed(0) : (mrpVal - spVal).toFixed(2)}</div>` : '';
+                    card.innerHTML = `
+                        <div class="edit-badge">Edit</div>
+                        ${copyMrp}
+                        ${copySave}
+                        ${item.image ? `<img class="price-card-image" src="${item.image}" alt="${item.name}">` : ''}
+                        <div class="product-title">${item.name || ''}</div>
+                        <div class="price-tag-line">₹${priceStr}${unitClean ? '/' + unitClean : ''}</div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="edit-badge">Edit</div>
+                        ${mrpBadgeHtml}
+                        ${saveBadgeHtml}
+                        <div class="card-image-wrapper">
+                            ${item.image ? `<img src="${item.image}" alt="${item.name}">` : '<div class="no-image"></div>'}
                         </div>
-                    </div>
-                `;
+                        <div class="card-details-wrapper">
+                            <h2 class="${titleClass}">${item.name || ''}</h2>
+                            <div class="price-row">
+                                <span class="${priceClass}">${priceStr}</span>
+                                ${unitClean ? `<span class="unit-value">/${unitClean}</span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
             }
             gridContainer.appendChild(card);
         });
 
-        // Auto-shrink titles to fit in Layout 14
+        // Auto-shrink titles to fit in Layout 14 or Layout Copy (NoImage)
         if (activeLayout === '14') {
             adjustLayout14TitlesFontSize();
+        } else if (activeLayout === 'copy') {
+            adjustCopyTitlesFontSize();
         }
+    }
+
+    // Auto stretch and shrink titles helper for Layout Copy / NoImage
+    function adjustCopyTitlesFontSize() {
+        const titles = document.querySelectorAll('.grid-container.layout-copy .product-title');
+        titles.forEach(title => {
+            title.style.removeProperty('font-size');
+            const card = title.closest('.price-card');
+            if (!card) return;
+            
+            const availableWidth = card.clientWidth - 12;
+            if (availableWidth <= 0) return;
+
+            let fontSizeMm = 13.5;
+            title.style.setProperty('font-size', fontSizeMm + 'mm', 'important');
+
+            let safetyCounter = 0;
+            while (safetyCounter < 50 && title.scrollWidth > availableWidth && fontSizeMm > 4.5) {
+                fontSizeMm -= 0.3;
+                title.style.setProperty('font-size', fontSizeMm + 'mm', 'important');
+                safetyCounter++;
+            }
+        });
     }
 
     // Auto-shrink titles helper for Layout 14
@@ -1110,7 +1152,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('supermarket_active_layout', layout);
 
         // Update active class on selector buttons
-        [layout1Btn, layout2Btn, layout4Btn, layout8Btn, layout12Btn, layout12PosterBtn, layout14Btn, layout16Btn, layout18Btn, layout2LandscapeBtn, layout3LandscapeBtn, layout6LandscapeBtn, layout8LandscapeBtn, layout12LandscapeBtn, layout16LandscapeBtn].forEach(btn => {
+        [layout1Btn, layout2Btn, layout4Btn, layout8Btn, layout12Btn, layout12PosterBtn, layout14Btn, layout16Btn, layout18Btn, layout2LandscapeBtn, layout3LandscapeBtn, layout6LandscapeBtn, layout8LandscapeBtn, layout12LandscapeBtn, layout16LandscapeBtn, layoutCopyBtn].forEach(btn => {
             if (btn) btn.classList.remove('active');
         });
 
@@ -1129,10 +1171,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (layout === '8-landscape' && layout8LandscapeBtn) layout8LandscapeBtn.classList.add('active');
         if (layout === '12-landscape' && layout12LandscapeBtn) layout12LandscapeBtn.classList.add('active');
         if (layout === '16-landscape' && layout16LandscapeBtn) layout16LandscapeBtn.classList.add('active');
+        if (layout === 'copy' && layoutCopyBtn) layoutCopyBtn.classList.add('active');
 
         // Apply classes to container for landscape/portrait
         const a4Container = document.querySelector('.a4-container');
-        const isLandscape = (layout === '2-landscape' || layout === '3-landscape' || layout === '6-landscape' || layout === '8-landscape' || layout === '12-landscape' || layout === '16-landscape');
+        const isLandscape = (layout === '2-landscape' || layout === '3-landscape' || layout === '6-landscape' || layout === '8-landscape' || layout === '12-landscape' || layout === '16-landscape' || layout === 'copy');
         if (a4Container) {
             if (isLandscape) {
                 a4Container.classList.add('landscape');
@@ -1176,6 +1219,7 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (layout === '8-landscape') desc = "A4 Landscape 2x4 Grid";
             else if (layout === '12-landscape') desc = "A4 Landscape 4x3 Grid";
             else if (layout === '16-landscape') desc = "A4 Landscape 4x4 Grid";
+            else if (layout === 'copy') desc = "A4 Landscape 16 Tags (NoImage)";
             brandSubtitle.textContent = desc;
         }
 
@@ -1205,6 +1249,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (layout8LandscapeBtn) layout8LandscapeBtn.addEventListener('click', () => updateLayoutUI('8-landscape'));
     if (layout12LandscapeBtn) layout12LandscapeBtn.addEventListener('click', () => updateLayoutUI('12-landscape'));
     if (layout16LandscapeBtn) layout16LandscapeBtn.addEventListener('click', () => updateLayoutUI('16-landscape'));
+    if (layoutCopyBtn) layoutCopyBtn.addEventListener('click', () => updateLayoutUI('copy'));
 
     // Smart File Parser for CSV and Excel
     function parseProductFile(file) {
@@ -1436,7 +1481,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (activeLayout === '6-landscape') limit = 6;
         else if (activeLayout === '8-landscape') limit = 8;
         else if (activeLayout === '12-landscape') limit = 12;
-        else if (activeLayout === '16-landscape') limit = 16;
+        else if (activeLayout === '16-landscape' || activeLayout === 'copy') limit = 16;
         else if (activeLayout === '18') limit = 18;
         else limit = parseInt(activeLayout, 10) || 12;
         return limit;
