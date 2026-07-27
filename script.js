@@ -98,8 +98,14 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('supermarket_items', JSON.stringify(items));
     }
 
+    const DEFAULT_FOOTER_TEXT = 'Smile Hypermarket SA ARCADE KAKKKAD 8282893434 Purchase above RS 800 within 5km, Order Before 11 AM';
     let headerTitle = localStorage.getItem('supermarket_header_title') || 'Todays Essentials';
-    let footerText = localStorage.getItem('supermarket_footer_text') || 'Smile Hypermarket, SA ARCADE,KAKKKAD,8282893434,Purchase above RS 800 within 5km, Order Before 11 AM';
+    let storedFooterText = localStorage.getItem('supermarket_footer_text');
+    if (!storedFooterText || storedFooterText.includes('Smile Hypermarket, SA ARCADE') || !storedFooterText.includes('8282893434')) {
+        storedFooterText = DEFAULT_FOOTER_TEXT;
+        localStorage.setItem('supermarket_footer_text', DEFAULT_FOOTER_TEXT);
+    }
+    let footerText = storedFooterText;
     let selectedDate = localStorage.getItem('supermarket_selected_date') || getTodayDateString();
     let selectedEndDate = localStorage.getItem('supermarket_selected_end_date') || '';
     let customLogo = localStorage.getItem('supermarket_custom_logo') || null;
@@ -828,9 +834,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Helper function to render footer text with phone number highlight
+    function renderFormattedFooter(text) {
+        if (!footerTextDisplay) return;
+        const val = text || DEFAULT_FOOTER_TEXT;
+        const escaped = val.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        const formatted = escaped.replace(/\b(\d{10}|\d{5}\s?\d{5})\b/g, '<span class="footer-highlight-phone">$1</span>');
+        footerTextDisplay.innerHTML = formatted;
+    }
+
     // Footer Editable listener
     if (footerTextDisplay) {
-        footerTextDisplay.textContent = footerText;
+        renderFormattedFooter(footerText);
     }
     if (controlFooterInput) {
         controlFooterInput.value = footerText;
@@ -839,9 +854,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (controlFooterInput) {
         controlFooterInput.addEventListener('input', (e) => {
             footerText = e.target.value;
-            if (footerTextDisplay) {
-                footerTextDisplay.textContent = footerText;
-            }
+            renderFormattedFooter(footerText);
             localStorage.setItem('supermarket_footer_text', footerText);
         });
     }
@@ -849,8 +862,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (footerTextDisplay) {
         footerTextDisplay.addEventListener('blur', () => {
             const text = footerTextDisplay.textContent.trim();
-            footerText = text || 'Smile Hypermarket SA ARCADE KAKKKAD Purchase above RS 800 within 5km, Order Before 11 AM';
-            footerTextDisplay.textContent = footerText;
+            footerText = text || DEFAULT_FOOTER_TEXT;
+            renderFormattedFooter(footerText);
             if (controlFooterInput) {
                 controlFooterInput.value = footerText;
             }
@@ -1101,7 +1114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Reset variables to defaults
                 headerTitle = 'Todays Essentials';
-                footerText = 'Smile Hypermarket SA ARCADE KAKKKAD Purchase above RS 800 within 5km, Order Before 11 AM';
+                footerText = DEFAULT_FOOTER_TEXT;
                 selectedDate = getTodayDateString();
                 selectedEndDate = '';
                 customLogo = null;
@@ -1124,7 +1137,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (footerTextDisplay) {
-                    footerTextDisplay.textContent = footerText;
+                    renderFormattedFooter(footerText);
                 }
                 if (controlFooterInput) {
                     controlFooterInput.value = footerText;

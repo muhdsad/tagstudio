@@ -301,11 +301,16 @@ body {
     letter-spacing: 0.5px;
     outline: none;
 }
-highlight-word {
-  background-color: yellow; /* Change color to your preference */
-  color: black;
-  font-weight: bold;
-  padding: 0 4px; /* Optional: Adds a little breathing room around the word */
+.footer-highlight-phone, highlight-word {
+    background-color: #facc15;
+    color: #0f172a;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    letter-spacing: 0.5px;
+    margin: 0 3px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 /* Base Price Card layout */
 .price-card {
