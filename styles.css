@@ -2955,3 +2955,8 @@ body {
     font-weight: 600 !important;
 }
 
+.grid-container.hide-product-images .card-image-wrapper img,
+.grid-container.hide-product-images .price-card-image {
+    display: none !important;
+}
+

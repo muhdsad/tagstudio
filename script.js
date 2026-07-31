@@ -195,6 +195,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionOfferPeriod = document.getElementById('section-offer-period');
     const sectionPosterTitle = document.getElementById('section-poster-title');
     const sectionStoreLogo = document.getElementById('section-store-logo');
+    const toggleProductImagesCheckbox = document.getElementById('toggle-product-images-checkbox');
+    let showProductImages = true;
+
+    if (toggleProductImagesCheckbox) {
+        toggleProductImagesCheckbox.addEventListener('change', (e) => {
+            showProductImages = e.target.checked;
+            if (!showProductImages) {
+                gridContainer.classList.add('hide-product-images');
+            } else {
+                gridContainer.classList.remove('hide-product-images');
+            }
+            renderGrid();
+        });
+    }
 
     // Tab buttons and content containers
     const tabDesignBtn = document.getElementById('tab-design-btn');
@@ -476,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let mrpBadgeHtml = '';
                 let saveBadgeHtml = '';
 
-                if (mrpVal && !isNaN(mrpVal) && mrpVal > 0) {
+                if (mrpVal && !isNaN(mrpVal) && mrpVal > 0 && (!spVal || isNaN(spVal) || mrpVal > spVal)) {
                     mrpBadgeHtml = `<div class="mrp-badge">MRP&nbsp;<span class="mrp-strike">${mrpVal.toFixed(2)}</span></div>`;
                 }
 
@@ -505,14 +519,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 unitClean = unitClean.replace(/^1\s*/i, '').toUpperCase();
 
                 card.onclick = () => openEditor(index);
+                const hasProductImg = showProductImages && Boolean(item.image);
                 if (activeLayout === 'copy') {
-                    let copyMrp = mrpVal && !isNaN(mrpVal) && mrpVal > 0 ? `<div class="price-card-mrp">MRP <span style="text-decoration: line-through;">₹${mrpVal.toFixed(2)}</span></div>` : '';
+                    let copyMrp = mrpVal && !isNaN(mrpVal) && mrpVal > 0 && (!spVal || isNaN(spVal) || mrpVal > spVal) ? `<div class="price-card-mrp">MRP <span style="text-decoration: line-through;">₹${mrpVal.toFixed(2)}</span></div>` : '';
                     let copySave = mrpVal && spVal && !isNaN(mrpVal) && !isNaN(spVal) && mrpVal > spVal ? `<div class="price-card-save">SMILE SAVE <span class="currency-symbol">₹</span>${(mrpVal - spVal) % 1 === 0 ? (mrpVal - spVal).toFixed(0) : (mrpVal - spVal).toFixed(2)}</div>` : '';
                     card.innerHTML = `
                         <div class="edit-badge">Edit</div>
                         ${copyMrp}
                         ${copySave}
-                        ${item.image ? `<img class="price-card-image" src="${item.image}" alt="${item.name}">` : ''}
+                        ${hasProductImg ? `<img class="price-card-image" src="${item.image}" alt="${item.name}">` : ''}
                         <div class="product-title">${item.name || ''}</div>
                         <div class="price-tag-line">₹${priceStr}${unitClean ? '/' + unitClean : ''}</div>
                     `;
@@ -522,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${mrpBadgeHtml}
                         ${saveBadgeHtml}
                         <div class="card-image-wrapper">
-                            ${item.image ? `<img src="${item.image}" alt="${item.name}">` : '<div class="no-image"></div>'}
+                            ${hasProductImg ? `<img src="${item.image}" alt="${item.name}">` : '<div class="no-image"></div>'}
                         </div>
                         <div class="card-details-wrapper">
                             <h2 class="${titleClass}">${item.name || ''}</h2>
@@ -1296,11 +1311,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 spIndex = headers.findIndex(h => h.includes('selling') || h.includes('sp') || h.includes('offer') || h.includes('promo') || h.includes('sale') || h.includes('price') || h.includes('special') || h.includes('new') || h.includes('discount') || h.includes('rate'));
                 imgIndex = headers.findIndex(h => h.includes('image') || h.includes('img') || h.includes('pic') || h.includes('photo') || h.includes('url'));
 
-                // Fallbacks
-                if (nameIndex === -1 && headers.length > 0) nameIndex = 0;
-                if (spIndex === -1 && headers.length > 1) spIndex = 1;
-                if (mrpIndex === -1 && headers.length > 2) mrpIndex = 2;
-                if (unitIndex === -1 && headers.length > 3) unitIndex = 3;
+                // Fallbacks: Only set mrpIndex if explicitly matched or in a 4+ column headerless file
+                const hasHeaderMatch = nameIndex !== -1 || spIndex !== -1 || mrpIndex !== -1 || unitIndex !== -1 || imgIndex !== -1;
+
+                if (!hasHeaderMatch) {
+                    // Headerless file: assign by column positions
+                    if (headers.length > 0) nameIndex = 0;
+                    if (headers.length > 1) spIndex = 1;
+                    if (headers.length >= 4) {
+                        mrpIndex = 2;
+                        unitIndex = 3;
+                    } else if (headers.length === 3) {
+                        unitIndex = 2;
+                        mrpIndex = -1;
+                    }
+                } else {
+                    // File has headers: fallback Name or Selling Price if needed, but keep mrpIndex = -1 if no MRP column exists
+                    if (nameIndex === -1 && headers.length > 0) nameIndex = 0;
+                    if (spIndex === -1 && headers.length > 1 && mrpIndex !== 1) spIndex = 1;
+                }
+
+                // If mrpIndex matched the same column as spIndex, clear mrpIndex so MRP stays empty
+                if (mrpIndex !== -1 && mrpIndex === spIndex) {
+                    mrpIndex = -1;
+                }
 
                 const parsed = [];
                 for (let r = 1; r < jsonData.length; r++) {
