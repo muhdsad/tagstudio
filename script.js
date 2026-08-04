@@ -98,14 +98,11 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('supermarket_items', JSON.stringify(items));
     }
 
-    const DEFAULT_FOOTER_TEXT = 'Smile Hypermarket SA ARCADE KAKKKAD 8282893434 Purchase above RS 800 within 5km, Order Before 11 AM';
+    const DEFAULT_FOOTER_TEXT = '*T&C Apply. Purchase limit may apply. Bulk purchase not allowed for promotional items. Offer valid while stock lasts.\nFREE HOME DELIVERY (Order Before 11 am) | PURCHASE ABOVE 800 with in 5 km | SK arcade, Kakkad 82828 93434';
     let headerTitle = localStorage.getItem('supermarket_header_title') || 'Todays Essentials';
-    let storedFooterText = localStorage.getItem('supermarket_footer_text');
-    if (!storedFooterText || storedFooterText.includes('Smile Hypermarket, SA ARCADE') || !storedFooterText.includes('8282893434')) {
-        storedFooterText = DEFAULT_FOOTER_TEXT;
-        localStorage.setItem('supermarket_footer_text', DEFAULT_FOOTER_TEXT);
-    }
-    let footerText = storedFooterText;
+    let headerFontStyle = localStorage.getItem('supermarket_header_font_style') || 'vintage_headline';
+    let headerFontColor = localStorage.getItem('supermarket_header_font_color') || 'brand';
+    let footerText = localStorage.getItem('supermarket_footer_text') || DEFAULT_FOOTER_TEXT;
     let selectedDate = localStorage.getItem('supermarket_selected_date') || getTodayDateString();
     let selectedEndDate = localStorage.getItem('supermarket_selected_end_date') || '';
     let customLogo = localStorage.getItem('supermarket_custom_logo') || null;
@@ -118,32 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentEditType = 'card'; // 'card' or 'db'
     let currentEditId = null; // ID of the product database item being edited
 
-    // Convert existing product names to uppercase
-    let itemsChanged = false;
-    if (items && items.length > 0) {
-        items.forEach(item => {
-            if (item.name && item.name !== item.name.toUpperCase()) {
-                item.name = item.name.toUpperCase();
-                itemsChanged = true;
-            }
-        });
-        if (itemsChanged) {
-            localStorage.setItem('supermarket_items', JSON.stringify(items));
-        }
-    }
 
-    let importedProductsChanged = false;
-    if (importedProducts && importedProducts.length > 0) {
-        importedProducts.forEach(product => {
-            if (product.name && product.name !== product.name.toUpperCase()) {
-                product.name = product.name.toUpperCase();
-                importedProductsChanged = true;
-            }
-        });
-        if (importedProductsChanged) {
-            localStorage.setItem('supermarket_imported_products', JSON.stringify(importedProducts));
-        }
-    }
 
     // DOM Elements
     const gridContainer = document.querySelector('.grid-container');
@@ -196,6 +168,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const sectionPosterTitle = document.getElementById('section-poster-title');
     const sectionStoreLogo = document.getElementById('section-store-logo');
     const toggleProductImagesCheckbox = document.getElementById('toggle-product-images-checkbox');
+    const controlHeaderFontStyleSelect = document.getElementById('control-header-font-style');
+    const controlHeaderFontColorSelect = document.getElementById('control-header-font-color');
+    const modalEditTagHeader = document.getElementById('modal-edit-tag-header');
+    const modalCloseTagHeader = document.getElementById('modal-close-tag-header');
+    const modalTagHeaderText = document.getElementById('modal-tag-header-text');
+    const modalTagHeaderFontStyle = document.getElementById('modal-tag-header-font-style');
+    const modalTagHeaderFontColor = document.getElementById('modal-tag-header-font-color');
+    const modalSaveTagHeader = document.getElementById('modal-save-tag-header');
     let showProductImages = true;
 
     if (toggleProductImagesCheckbox) {
@@ -824,7 +804,163 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target === editorModal) {
             closeEditor();
         }
+        if (event.target === modalSaveSelection) {
+            closeSaveSelectionModal();
+        }
     };
+
+    // --- Saved Selections Engine ---
+    let savedSelections = JSON.parse(localStorage.getItem('supermarket_saved_selections')) || [];
+    let activePresetId = '';
+
+    const savedSelectionsSelect = document.getElementById('saved-selections-select');
+    const saveSelectionTriggerBtn = document.getElementById('save-selection-trigger-btn');
+    const deleteSelectionBtn = document.getElementById('delete-selection-btn');
+    const modalSaveSelection = document.getElementById('modal-save-selection');
+    const modalCloseSaveSelection = document.getElementById('modal-close-save-selection');
+    const modalCancelSaveSelection = document.getElementById('modal-cancel-save-selection');
+    const saveSelectionForm = document.getElementById('save-selection-form');
+    const modalSelectionNameInput = document.getElementById('modal-selection-name-input');
+
+    function renderSavedSelectionsDropdown() {
+        if (!savedSelectionsSelect) return;
+        savedSelectionsSelect.innerHTML = '<option value="">-- Load Saved Selection --</option>';
+        savedSelections.forEach(sel => {
+            const opt = document.createElement('option');
+            opt.value = sel.id;
+            const filledCount = sel.items ? sel.items.filter(i => i && i.name && i.name.trim() !== '').length : 0;
+            opt.textContent = `${sel.name} (${filledCount} items${sel.layout ? `, ${sel.layout}-Grid` : ''})`;
+            savedSelectionsSelect.appendChild(opt);
+        });
+        savedSelectionsSelect.value = activePresetId || '';
+        if (deleteSelectionBtn) {
+            deleteSelectionBtn.style.display = activePresetId ? 'inline-flex' : 'none';
+        }
+    }
+
+    function openSaveSelectionModal() {
+        if (!modalSaveSelection) return;
+        const defaultName = `selection_${savedSelections.length + 1}`;
+        if (modalSelectionNameInput) {
+            modalSelectionNameInput.value = defaultName;
+        }
+        modalSaveSelection.style.display = 'flex';
+    }
+
+    function closeSaveSelectionModal() {
+        if (!modalSaveSelection) return;
+        modalSaveSelection.style.display = 'none';
+    }
+
+    function handleSaveSelectionSubmit(e) {
+        if (e) e.preventDefault();
+        const finalName = modalSelectionNameInput ? modalSelectionNameInput.value.trim() : '';
+        const nameToSave = finalName || `selection_${savedSelections.length + 1}`;
+
+        const newPreset = {
+            id: `sel_${Date.now()}`,
+            name: nameToSave,
+            layout: activeLayout,
+            items: JSON.parse(JSON.stringify(items)),
+            headerTitle: headerTitle,
+            headerFontStyle: headerFontStyle,
+            headerFontColor: headerFontColor,
+            footerText: footerText,
+            selectedDate: selectedDate,
+            selectedEndDate: selectedEndDate,
+            headerType: headerType,
+            createdAt: new Date().toISOString()
+        };
+
+        savedSelections = [newPreset, ...savedSelections];
+        localStorage.setItem('supermarket_saved_selections', JSON.stringify(savedSelections));
+        activePresetId = newPreset.id;
+        renderSavedSelectionsDropdown();
+        closeSaveSelectionModal();
+    }
+
+    function handleSelectPreset(presetId) {
+        activePresetId = presetId;
+        if (!presetId) {
+            if (deleteSelectionBtn) deleteSelectionBtn.style.display = 'none';
+            return;
+        }
+
+        const preset = savedSelections.find(s => s.id === presetId);
+        if (preset) {
+            if (preset.layout) {
+                activeLayout = preset.layout;
+                localStorage.setItem('supermarket_active_layout', activeLayout);
+                updateLayoutUI(activeLayout);
+            }
+            if (preset.items && Array.isArray(preset.items)) {
+                items = JSON.parse(JSON.stringify(preset.items));
+                while (items.length < 18) {
+                    items.push({ id: items.length, name: '', unit: 'KG', mrp: '', sellingPrice: '', image: null });
+                }
+                saveItems();
+            }
+            if (preset.headerTitle !== undefined) {
+                headerTitle = preset.headerTitle;
+                localStorage.setItem('supermarket_header_title', headerTitle);
+                if (headerTitleEl) headerTitleEl.innerText = headerTitle;
+                if (controlTitleInput) controlTitleInput.value = headerTitle;
+            }
+            if (preset.headerFontStyle) {
+                headerFontStyle = preset.headerFontStyle;
+                localStorage.setItem('supermarket_header_font_style', headerFontStyle);
+                const styleSelect = document.getElementById('control-header-font-style');
+                if (styleSelect) styleSelect.value = headerFontStyle;
+                renderHeaderTitleStyles();
+            }
+            if (preset.headerFontColor) {
+                headerFontColor = preset.headerFontColor;
+                localStorage.setItem('supermarket_header_font_color', headerFontColor);
+                const colorSelect = document.getElementById('control-header-font-color');
+                if (colorSelect) colorSelect.value = headerFontColor;
+                renderHeaderTitleStyles();
+            }
+            if (preset.footerText !== undefined) {
+                footerText = preset.footerText;
+                localStorage.setItem('supermarket_footer_text', footerText);
+                if (controlFooterInput) controlFooterInput.value = footerText;
+                renderFormattedFooter();
+            }
+            renderGrid();
+            if (deleteSelectionBtn) deleteSelectionBtn.style.display = 'inline-flex';
+        }
+    }
+
+    function handleDeletePreset(presetId) {
+        if (!presetId) return;
+        if (!confirm('Are you sure you want to delete this saved selection?')) return;
+
+        savedSelections = savedSelections.filter(s => s.id !== presetId);
+        localStorage.setItem('supermarket_saved_selections', JSON.stringify(savedSelections));
+        if (activePresetId === presetId) {
+            activePresetId = '';
+        }
+        renderSavedSelectionsDropdown();
+    }
+
+    if (saveSelectionTriggerBtn) {
+        saveSelectionTriggerBtn.addEventListener('click', openSaveSelectionModal);
+    }
+    if (modalCloseSaveSelection) {
+        modalCloseSaveSelection.addEventListener('click', closeSaveSelectionModal);
+    }
+    if (modalCancelSaveSelection) {
+        modalCancelSaveSelection.addEventListener('click', closeSaveSelectionModal);
+    }
+    if (saveSelectionForm) {
+        saveSelectionForm.addEventListener('submit', handleSaveSelectionSubmit);
+    }
+    if (savedSelectionsSelect) {
+        savedSelectionsSelect.addEventListener('change', (e) => handleSelectPreset(e.target.value));
+    }
+    if (deleteSelectionBtn) {
+        deleteSelectionBtn.addEventListener('click', () => handleDeletePreset(activePresetId));
+    }
 
     const itemNameInput = document.getElementById('item-name');
     if (itemNameInput) {
@@ -835,43 +971,233 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Header interactions ---
 
-    // Title Editable listener
-    headerTitleEl.textContent = headerTitle;
-    if (controlTitleInput) {
-        controlTitleInput.value = headerTitle;
-    }
+    // --- Header Title Font & Color Styling Engine ---
+    function renderHeaderTitleStyles() {
+        if (!headerTitleEl) return;
+        
+        const rawText = headerTitle || 'Todays Essentials';
+        const lines = rawText.includes('\n') 
+            ? rawText.split('\n').map(l => l.trim()).filter(Boolean)
+            : [rawText.trim()];
 
-    if (controlTitleInput) {
-        controlTitleInput.addEventListener('input', (e) => {
-            headerTitle = e.target.value.trim() || 'Todays Essentials';
-            headerTitleEl.textContent = headerTitle;
-            localStorage.setItem('supermarket_header_title', headerTitle);
+        headerTitleEl.innerHTML = '';
+        headerTitleEl.removeAttribute('contenteditable');
+        headerTitleEl.style.display = 'flex';
+        headerTitleEl.style.flexDirection = 'column';
+        headerTitleEl.style.alignItems = 'center';
+        headerTitleEl.style.justifyContent = 'center';
+        headerTitleEl.style.lineHeight = '0.95';
+        headerTitleEl.style.padding = '2px 8px';
+        headerTitleEl.style.cursor = 'pointer';
+        headerTitleEl.title = 'Click to edit Header Text, Font Style & Colors';
+
+        lines.forEach((lineText, idx) => {
+            const isSecondLine = idx === 1;
+            const isOdd = idx % 2 === 1;
+            const span = document.createElement('span');
+            span.textContent = lineText;
+            span.style.display = 'inline-block';
+            span.style.textAlign = 'center';
+
+            let fontFamily = "'Pacifico', cursive";
+            let textStroke = '1.2px #ffffff';
+            let fontSize = lineText.length > 15 ? '24px' : (lineText.length > 10 ? '32px' : '42px');
+
+            if (headerFontStyle === 'vintage_headline') {
+                if (isSecondLine) {
+                    fontFamily = "'Dancing Script', cursive";
+                    textStroke = '0.8px #ffffff';
+                    fontSize = lineText.length > 15 ? '30px' : (lineText.length > 10 ? '38px' : '48px');
+                } else {
+                    fontFamily = "'Pacifico', cursive";
+                    textStroke = '1.2px #ffffff';
+                    fontSize = lineText.length > 15 ? '24px' : (lineText.length > 10 ? '32px' : '42px');
+                }
+            } else if (headerFontStyle === 'modern_montserrat') {
+                fontFamily = "'Montserrat', sans-serif";
+                span.style.fontWeight = '900';
+                textStroke = '1.5px #ffffff';
+                fontSize = lineText.length > 15 ? '24px' : (lineText.length > 10 ? '32px' : '42px');
+            } else if (headerFontStyle === 'modern_bebas') {
+                fontFamily = "'Bebas Neue', sans-serif";
+                span.style.letterSpacing = '1px';
+                textStroke = '1px #ffffff';
+                fontSize = lineText.length > 15 ? '30px' : (lineText.length > 10 ? '40px' : '52px');
+            } else if (headerFontStyle === 'modern_righteous') {
+                fontFamily = "'Righteous', cursive";
+                textStroke = '1.2px #ffffff';
+                fontSize = lineText.length > 15 ? '24px' : (lineText.length > 10 ? '32px' : '42px');
+            } else if (headerFontStyle === 'modern_poppins') {
+                fontFamily = "'Poppins', sans-serif";
+                span.style.fontWeight = '900';
+                textStroke = '1.2px #ffffff';
+                fontSize = lineText.length > 15 ? '24px' : (lineText.length > 10 ? '32px' : '42px');
+            } else if (headerFontStyle === 'modern_oswald') {
+                fontFamily = "'Oswald', sans-serif";
+                span.style.fontWeight = '700';
+                textStroke = '1px #ffffff';
+                fontSize = lineText.length > 15 ? '28px' : (lineText.length > 10 ? '36px' : '46px');
+            } else if (headerFontStyle === 'vintage') {
+                fontFamily = "'Pacifico', cursive";
+                fontSize = lineText.length > 15 ? '24px' : (lineText.length > 10 ? '32px' : '42px');
+            } else if (headerFontStyle === 'headline') {
+                fontFamily = "'Dancing Script', cursive";
+                textStroke = '0.8px #ffffff';
+                fontSize = lineText.length > 15 ? '30px' : (lineText.length > 10 ? '38px' : '48px');
+            } else {
+                fontFamily = "'Anton', sans-serif";
+                fontSize = lineText.length > 15 ? '26px' : (lineText.length > 10 ? '34px' : '44px');
+            }
+
+            let textColor = '#16a34a';
+            let textShadow = '0 3px 0 #15803d, 0 4px 0 #14532d';
+
+            if (headerFontColor === 'black_white') {
+                textColor = isOdd ? '#ffffff' : '#000000';
+                textStroke = isOdd ? '1.5px #000000' : '1.5px #ffffff';
+                textShadow = isOdd ? '0 2px 0 #000000, 0 3px 0 #000000' : '0 2px 0 #444444, 0 3px 0 #666666';
+            } else if (headerFontColor === 'solid_black') {
+                textColor = '#000000';
+                textStroke = '1.5px #ffffff';
+                textShadow = '0 2px 0 #333333, 0 3px 0 #555555';
+            } else if (headerFontColor === 'solid_white') {
+                textColor = '#ffffff';
+                textStroke = '1.5px #000000';
+                textShadow = '0 2px 0 #000000, 0 3px 0 #000000';
+            } else if (headerFontColor === 'black_gold') {
+                textColor = isOdd ? '#d97706' : '#000000';
+                textStroke = '1.5px #ffffff';
+                textShadow = isOdd ? '0 2px 0 #92400e' : '0 2px 0 #333333';
+            } else if (headerFontColor === 'red_yellow') {
+                textColor = isOdd ? '#eab308' : '#e11b22';
+                textStroke = '1.5px #ffffff';
+                textShadow = isOdd ? '0 2px 0 #854d0e' : '0 2px 0 #991b1b';
+            } else if (headerFontColor === 'blue_indigo') {
+                textColor = isOdd ? '#4338ca' : '#1d4ed8';
+                textStroke = '1.5px #ffffff';
+                textShadow = isOdd ? '0 2px 0 #312e81' : '0 2px 0 #1e40af';
+            } else if (headerFontColor === 'solid_red') {
+                textColor = '#e11b22';
+                textStroke = '1.5px #ffffff';
+                textShadow = '0 2px 0 #991b1b';
+            } else {
+                textColor = isOdd ? '#ea580c' : '#16a34a';
+                textShadow = isOdd ? '0 2px 0 #b45309, 0 3px 0 #7c2d12' : '0 3px 0 #15803d, 0 4px 0 #14532d';
+            }
+
+            span.style.fontFamily = fontFamily;
+            span.style.fontSize = fontSize;
+            span.style.color = textColor;
+            span.style.webkitTextStroke = textStroke;
+            span.style.paintOrder = 'stroke fill';
+            span.style.filter = `drop-shadow(${textShadow})`;
+            span.style.textTransform = 'none';
+
+            headerTitleEl.appendChild(span);
         });
     }
 
-    headerTitleEl.addEventListener('blur', () => {
-        const text = headerTitleEl.textContent.trim();
-        headerTitle = text || 'Todays Essentials';
-        headerTitleEl.textContent = headerTitle;
-        if (controlTitleInput) {
-            controlTitleInput.value = headerTitle;
-        }
-        localStorage.setItem('supermarket_header_title', headerTitle);
-    });
-    headerTitleEl.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            headerTitleEl.blur();
-        }
-    });
+    // Set initial values on controls
+    if (controlTitleInput) controlTitleInput.value = headerTitle;
+    if (controlHeaderFontStyleSelect) controlHeaderFontStyleSelect.value = headerFontStyle;
+    if (controlHeaderFontColorSelect) controlHeaderFontColorSelect.value = headerFontColor;
+
+    renderHeaderTitleStyles();
+
+    // Listeners for Sidebar Controls
+    if (controlTitleInput) {
+        controlTitleInput.addEventListener('input', (e) => {
+            headerTitle = e.target.value;
+            localStorage.setItem('supermarket_header_title', headerTitle);
+            renderHeaderTitleStyles();
+        });
+    }
+
+    if (controlHeaderFontStyleSelect) {
+        controlHeaderFontStyleSelect.addEventListener('change', (e) => {
+            headerFontStyle = e.target.value;
+            localStorage.setItem('supermarket_header_font_style', headerFontStyle);
+            renderHeaderTitleStyles();
+        });
+    }
+
+    if (controlHeaderFontColorSelect) {
+        controlHeaderFontColorSelect.addEventListener('change', (e) => {
+            headerFontColor = e.target.value;
+            localStorage.setItem('supermarket_header_font_color', headerFontColor);
+            renderHeaderTitleStyles();
+        });
+    }
+
+    // Header Title Click to Edit Modal
+    if (headerTitleEl) {
+        headerTitleEl.addEventListener('click', () => {
+            if (modalEditTagHeader) {
+                if (modalTagHeaderText) modalTagHeaderText.value = headerTitle;
+                if (modalTagHeaderFontStyle) modalTagHeaderFontStyle.value = headerFontStyle;
+                if (modalTagHeaderFontColor) modalTagHeaderFontColor.value = headerFontColor;
+                modalEditTagHeader.style.display = 'flex';
+            }
+        });
+    }
+
+    if (modalSaveTagHeader) {
+        modalSaveTagHeader.addEventListener('click', () => {
+            if (modalTagHeaderText) headerTitle = modalTagHeaderText.value;
+            if (modalTagHeaderFontStyle) headerFontStyle = modalTagHeaderFontStyle.value;
+            if (modalTagHeaderFontColor) headerFontColor = modalTagHeaderFontColor.value;
+
+            localStorage.setItem('supermarket_header_title', headerTitle);
+            localStorage.setItem('supermarket_header_font_style', headerFontStyle);
+            localStorage.setItem('supermarket_header_font_color', headerFontColor);
+
+            if (controlTitleInput) controlTitleInput.value = headerTitle;
+            if (controlHeaderFontStyleSelect) controlHeaderFontStyleSelect.value = headerFontStyle;
+            if (controlHeaderFontColorSelect) controlHeaderFontColorSelect.value = headerFontColor;
+
+            renderHeaderTitleStyles();
+
+            if (modalEditTagHeader) modalEditTagHeader.style.display = 'none';
+        });
+    }
+
+    if (modalCloseTagHeader) {
+        modalCloseTagHeader.addEventListener('click', () => {
+            if (modalEditTagHeader) modalEditTagHeader.style.display = 'none';
+        });
+    }
+
+    if (modalEditTagHeader) {
+        modalEditTagHeader.addEventListener('click', (e) => {
+            if (e.target === modalEditTagHeader) {
+                modalEditTagHeader.style.display = 'none';
+            }
+        });
+    }
 
     // Helper function to render footer text with phone number highlight
-    function renderFormattedFooter(text) {
+    function renderFormattedFooter() {
         if (!footerTextDisplay) return;
-        const val = text || DEFAULT_FOOTER_TEXT;
-        const escaped = val.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-        const formatted = escaped.replace(/\b(\d{10}|\d{5}\s?\d{5})\b/g, '<span class="footer-highlight-phone">$1</span>');
-        footerTextDisplay.innerHTML = formatted;
+        const rawText = footerText || DEFAULT_FOOTER_TEXT;
+
+        if (rawText.includes('*T&C') || rawText.includes('FREE HOME DELIVERY') || rawText.includes('SK arcade') || rawText.includes('82828')) {
+            let tcText = '*T&C Apply. Purchase limit may apply. Bulk purchase not allowed for promotional items. Offer valid while stock lasts.';
+            if (rawText.includes('\n')) {
+                const lines = rawText.split('\n');
+                tcText = lines[0];
+            }
+
+            footerTextDisplay.innerHTML = `
+                <div class="footer-tc">${tcText}</div>
+                <div class="footer-main-bar">
+                    <div>FREE HOME DELIVERY <span class="footer-sub">(Order Before 11 am)</span></div>
+                    <div>PURCHASE ABOVE 800 <span class="footer-sub">with in 5 km</span></div>
+                    <div>SK arcade, Kakkad <span style="color:#ffffff; font-weight:bold; margin-left:2px;">82828 93434</span></div>
+                </div>
+            `;
+        } else {
+            footerTextDisplay.innerHTML = `<div style="color:#fde047; font-weight:900; font-size:11px; text-transform:uppercase;">${rawText}</div>`;
+        }
     }
 
     // Footer Editable listener
@@ -947,6 +1273,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Header Mode & Custom Banner logic
     renderHeaderMode();
     renderLogo();
+    renderSavedSelectionsDropdown();
 
     if (headerTypeDefaultBtn) {
         headerTypeDefaultBtn.addEventListener('click', () => {
@@ -1167,9 +1494,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     controlTitleInput.value = headerTitle;
                 }
 
-                if (footerTextDisplay) {
-                    renderFormattedFooter(footerText);
-                }
+                renderFormattedFooter();
                 if (controlFooterInput) {
                     controlFooterInput.value = footerText;
                 }
@@ -2209,12 +2534,20 @@ document.addEventListener('DOMContentLoaded', () => {
             syncGdriveBtn.disabled = true;
 
             try {
-                let data = null;
+                let driveFilesList = [];
                 if (apiKey) {
-                    const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&fields=files(id,name,mimeType,webContentLink,thumbnailLink)&key=${apiKey}`;
-                    const resp = await fetch(url);
-                    data = await resp.json();
-                    if (data.error) throw new Error(data.error.message);
+                    let pageToken = '';
+                    do {
+                        let url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents+and+trashed=false&pageSize=1000&fields=nextPageToken,files(id,name,mimeType,webContentLink,thumbnailLink)&key=${apiKey}`;
+                        if (pageToken) url += `&pageToken=${pageToken}`;
+                        const resp = await fetch(url);
+                        const data = await resp.json();
+                        if (data.error) throw new Error(data.error.message);
+                        if (data.files && data.files.length > 0) {
+                            driveFilesList.push(...data.files);
+                        }
+                        pageToken = data.nextPageToken || '';
+                    } while (pageToken);
                 } else {
                     // Try fetching public embedded folder view without API key
                     try {
@@ -2222,17 +2555,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         const resp = await fetch(embedUrl);
                         const htmlText = await resp.text();
                         
-                        const driveFiles = [];
                         // Match file IDs and image filenames from public drive HTML
                         const fileRegex = /["']([a-zA-Z0-9_-]{25,50})["'],\s*["']([^"']+\.(?:jpg|jpeg|png|webp|gif|svg))["']/gi;
                         let match;
                         while ((match = fileRegex.exec(htmlText)) !== null) {
-                            driveFiles.push({ id: match[1], name: match[2] });
+                            driveFilesList.push({ id: match[1], name: match[2] });
                         }
 
-                        if (driveFiles.length > 0) {
-                            data = { files: driveFiles };
-                        } else {
+                        if (driveFilesList.length === 0) {
                             throw new Error("Method doesn't allow unregistered callers. API Key required for direct Google API.");
                         }
                     } catch (scrapeErr) {
@@ -2240,7 +2570,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                if (!data || !data.files || data.files.length === 0) {
+                if (!driveFilesList || driveFilesList.length === 0) {
                     if (gdriveStatusMsg) {
                         gdriveStatusMsg.style.color = '#ef4444';
                         gdriveStatusMsg.textContent = 'No image files found in the specified Google Drive folder.';
@@ -2249,32 +2579,83 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // Map files by title
-                const driveMap = {};
-                data.files.forEach(file => {
-                    const titleWithoutExt = file.name.replace(/\.[^/.]+$/, "").trim().toUpperCase();
-                    if (titleWithoutExt) {
-                        driveMap[titleWithoutExt] = `https://lh3.googleusercontent.com/d/${file.id}`;
-                    }
-                });
+                // Smart Multi-Tier Drive Image Matcher
+                function findMatchingDriveFile(productName, driveFiles) {
+                    if (!productName || !driveFiles || driveFiles.length === 0) return null;
 
-                let matchedCount = 0;
+                    const normProduct = productName.trim().toUpperCase();
+                    const cleanProduct = normProduct.replace(/[^A-Z0-9\s]/g, '').trim();
+                    if (!cleanProduct) return null;
+
+                    const productWords = cleanProduct.split(/\s+/).filter(w => w.length > 1);
+
+                    // 1. Exact match
+                    for (let file of driveFiles) {
+                        const fileBase = file.name.replace(/\.[^/.]+$/, "").trim().toUpperCase();
+                        if (fileBase === normProduct) return file;
+                    }
+
+                    // 2. Cleaned alphanumeric match (ignoring spaces, dashes, underscores)
+                    const alphaProduct = cleanProduct.replace(/\s+/g, '');
+                    for (let file of driveFiles) {
+                        const fileBase = file.name.replace(/\.[^/.]+$/, "").trim().toUpperCase();
+                        const alphaFile = fileBase.replace(/[^A-Z0-9]/g, '');
+                        if (alphaFile && alphaFile === alphaProduct) return file;
+                    }
+
+                    // 3. Substring match
+                    for (let file of driveFiles) {
+                        const fileBase = file.name.replace(/\.[^/.]+$/, "").trim().toUpperCase();
+                        const cleanFile = fileBase.replace(/[^A-Z0-9\s]/g, '').trim();
+                        if (cleanFile.length >= 3 && (cleanProduct.includes(cleanFile) || cleanFile.includes(cleanProduct))) {
+                            return file;
+                        }
+                    }
+
+                    // 4. Significant word overlap match
+                    for (let file of driveFiles) {
+                        const fileBase = file.name.replace(/\.[^/.]+$/, "").trim().toUpperCase();
+                        const cleanFile = fileBase.replace(/[^A-Z0-9\s]/g, '').trim();
+                        const fileWords = cleanFile.split(/\s+/).filter(w => w.length > 2);
+
+                        for (let pw of productWords) {
+                            if (pw.length >= 3 && fileWords.includes(pw)) {
+                                return file;
+                            }
+                        }
+                    }
+
+                    return null;
+                }
+
+                let matchedDbCount = 0;
+                let matchedPosterCount = 0;
+
                 importedProducts.forEach(p => {
-                    const normName = (p.name || '').trim().toUpperCase();
-                    if (normName && driveMap[normName]) {
-                        p.image = driveMap[normName];
-                        matchedCount++;
+                    const matchedFile = findMatchingDriveFile(p.name, driveFilesList);
+                    if (matchedFile) {
+                        const driveImgUrl = matchedFile.thumbnailLink
+                            ? matchedFile.thumbnailLink.replace(/=s\d+/, '=s800')
+                            : `https://drive.google.com/thumbnail?id=${matchedFile.id}&sz=w800`;
+                        p.image = driveImgUrl;
+                        matchedDbCount++;
                     }
                 });
 
                 items.forEach(item => {
-                    const normName = (item.name || '').trim().toUpperCase();
-                    if (normName && driveMap[normName]) {
-                        item.image = driveMap[normName];
+                    const matchedFile = findMatchingDriveFile(item.name, driveFilesList);
+                    if (matchedFile) {
+                        const driveImgUrl = matchedFile.thumbnailLink
+                            ? matchedFile.thumbnailLink.replace(/=s\d+/, '=s800')
+                            : `https://drive.google.com/thumbnail?id=${matchedFile.id}&sz=w800`;
+                        item.image = driveImgUrl;
+                        matchedPosterCount++;
                     }
                 });
 
-                if (matchedCount > 0) {
+                const totalMatched = Math.max(matchedDbCount, matchedPosterCount);
+
+                if (totalMatched > 0) {
                     localStorage.setItem('supermarket_imported_products', JSON.stringify(importedProducts));
                     saveItems();
                     renderProductDatabase();
@@ -2282,13 +2663,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (gdriveStatusMsg) {
                         gdriveStatusMsg.style.color = '#16a34a';
-                        gdriveStatusMsg.textContent = `🎉 Success! Matched ${matchedCount} product images from Google Drive!`;
+                        gdriveStatusMsg.textContent = `🎉 Success! Matched ${matchedDbCount} DB entries & ${matchedPosterCount} poster tags from ${driveFilesList.length} Google Drive files!`;
                     }
                     setTimeout(() => closeGdriveModal(), 1800);
                 } else {
                     if (gdriveStatusMsg) {
                         gdriveStatusMsg.style.color = '#eab308';
-                        gdriveStatusMsg.textContent = `Found ${data.files.length} Drive files, but none matched your product names. Ensure Drive filenames match product titles.`;
+                        gdriveStatusMsg.textContent = `Found ${driveFilesList.length} Drive files, but none matched your product names. Ensure Drive filenames match product titles.`;
                     }
                 }
             } catch (err) {
