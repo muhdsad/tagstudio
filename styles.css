@@ -629,10 +629,10 @@ body {
 .grid-container.layout-12 .price-value {
     font-size: 58px !important;
     font-family: 'Anton', sans-serif !important;
-    color: #000000 !important;
-    -webkit-text-stroke: 1.8px #ffffff !important;
+    color: #e11b22 !important;
+    -webkit-text-stroke: 1.8px #000000 !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 5px #ffffff, 0px 0px 5px #ffffff, 0px 0px 8px #ffffff !important;
+    text-shadow: 0px 0px 5px #000000, 0px 0px 5px #000000, 0px 0px 8px #000000 !important;
 }
 .grid-container.layout-12 .unit-value {
     font-size: 18px !important;
@@ -1114,13 +1114,13 @@ body {
 }
 .grid-container.layout-16-landscape .price-value,
 .grid-container.layout-18 .price-value {
-    font-size: 42px !important;
+    font-size: 56px !important;
     line-height: 0.9 !important;
     font-family: 'Anton', sans-serif !important;
-    color: #000000 !important;
-    -webkit-text-stroke: 1.5px #ffffff !important;
+    color: #e11b22 !important;
+    -webkit-text-stroke: 1.5px #000000 !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 4px #ffffff, 0px 0px 4px #ffffff !important;
+    text-shadow: 0px 0px 4px #000000, 0px 0px 4px #000000 !important;
     letter-spacing: -0.5px !important;
 }
 .grid-container.layout-16-landscape .price-value.long-price,
@@ -1565,11 +1565,11 @@ body {
 .price-value {
     font-size: 44px;
     font-weight: 900;
-    color: #000000 !important;
+    color: #e11b22 !important;
     font-family: 'Anton', sans-serif !important;
-    -webkit-text-stroke: 1.5px #ffffff !important;
+    -webkit-text-stroke: 1.5px #000000 !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 5px #ffffff, 0px 0px 5px #ffffff, 0px 0px 5px #ffffff !important;
+    text-shadow: 0px 0px 5px #000000, 0px 0px 5px #000000, 0px 0px 5px #000000 !important;
     letter-spacing: -0.5px;
     line-height: 0.95;
     flex-shrink: 0;
@@ -2519,10 +2519,10 @@ body {
 
 .price-card .price-value {
     font-family: 'Anton', sans-serif !important;
-    color: #000000 !important;
-    -webkit-text-stroke: 1.8px #ffffff !important;
+    color: #e11b22 !important;
+    -webkit-text-stroke: 1.8px #000000 !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 5px #ffffff, 0px 0px 5px #ffffff, 0px 0px 5px #ffffff !important;
+    text-shadow: 0px 0px 5px #000000, 0px 0px 5px #000000, 0px 0px 5px #000000 !important;
     line-height: 0.95 !important;
     text-transform: uppercase !important;
     z-index: 3 !important;
