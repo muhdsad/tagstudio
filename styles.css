@@ -629,10 +629,11 @@ body {
 .grid-container.layout-12 .price-value {
     font-size: 58px !important;
     font-family: 'Anton', sans-serif !important;
-    color: #e11b22 !important;
+    color: #ffffff !important;
     -webkit-text-stroke: 1.8px #000000 !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 5px #000000, 0px 0px 5px #000000, 0px 0px 8px #000000 !important;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5) !important;
+    letter-spacing: 1.5px !important;
 }
 .grid-container.layout-12 .unit-value {
     font-size: 18px !important;
@@ -1117,11 +1118,11 @@ body {
     font-size: 56px !important;
     line-height: 0.9 !important;
     font-family: 'Anton', sans-serif !important;
-    color: #e11b22 !important;
-    -webkit-text-stroke: 1.5px #000000 !important;
+    color: #ffffff !important;
+    -webkit-text-stroke: 1.8px #000000 !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 4px #000000, 0px 0px 4px #000000 !important;
-    letter-spacing: -0.5px !important;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5) !important;
+    letter-spacing: 1.5px !important;
 }
 .grid-container.layout-16-landscape .price-value.long-price,
 .grid-container.layout-18 .price-value.long-price {
@@ -1309,17 +1310,17 @@ body {
 }
 .grid-container.layout-12-poster .poster-red-circle-price .circle-integer {
     font-size: 34px !important;
-    font-weight: 900 !important;
+    font-weight: 700 !important;
     font-family: 'Impact', 'Anton', 'Montserrat', 'Arial Black', sans-serif !important;
     line-height: 1 !important;
-    letter-spacing: -0.5px !important;
+    letter-spacing: 1px !important;
     margin-left: 8px !important;
 }
 .grid-container.layout-12-poster .poster-red-circle-price .circle-integer.long-integer {
     font-size: 27px !important;
-    font-weight: 900 !important;
+    font-weight: 700 !important;
     font-family: 'Impact', 'Anton', 'Montserrat', 'Arial Black', sans-serif !important;
-    letter-spacing: -0.8px !important;
+    letter-spacing: 0.8px !important;
     margin-left: 8px !important;
 }
 .grid-container.layout-12-poster .poster-red-circle-price .circle-decimal {
@@ -1564,16 +1565,17 @@ body {
 
 .price-value {
     font-size: 44px;
-    font-weight: 900;
-    color: #e11b22 !important;
+    font-weight: 700;
+    color: #ffffff !important;
     font-family: 'Anton', sans-serif !important;
-    -webkit-text-stroke: 1.5px #000000 !important;
+    -webkit-text-stroke: 1.8px #000000 !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 5px #000000, 0px 0px 5px #000000, 0px 0px 5px #000000 !important;
-    letter-spacing: -0.5px;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5) !important;
+    letter-spacing: 1.5px !important;
     line-height: 0.95;
     flex-shrink: 0;
     z-index: 3;
+    position: relative !important;
 }
 
 .price-value.long-price {
@@ -2519,13 +2521,16 @@ body {
 
 .price-card .price-value {
     font-family: 'Anton', sans-serif !important;
-    color: #e11b22 !important;
+    font-weight: 700 !important;
+    color: #ffffff !important;
     -webkit-text-stroke: 1.8px #000000 !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 0px 5px #000000, 0px 0px 5px #000000, 0px 0px 5px #000000 !important;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5) !important;
+    letter-spacing: 1.5px !important;
     line-height: 0.95 !important;
     text-transform: uppercase !important;
     z-index: 3 !important;
+    position: relative !important;
 }
 
 .price-card .unit-value {
@@ -2982,7 +2987,7 @@ body {
     font-family: 'Anton', Impact, sans-serif !important;
     font-size: 13.5mm !important;
     line-height: 0.9 !important;
-    letter-spacing: -0.5px !important;
+    letter-spacing: 1.2px !important;
     color: #000000 !important;
     width: 100% !important;
     white-space: nowrap !important;
@@ -3030,9 +3035,7 @@ body {
     pointer-events: none !important;
 }
 
-.grid-container.layout-copy .price-card.has-image .product-title,
-.grid-container.layout-copy .price-card.has-image .price-tag-line,
-.grid-container.layout-copy .price-card.has-image .price-value {
+.grid-container.layout-copy .price-card.has-image .product-title {
     color: #000000 !important;
     text-shadow: 
         -2px -2px 0 #fff,  
@@ -3043,6 +3046,14 @@ body {
          3px  0px 0 #fff,
          0px -3px 0 #fff,
          0px  3px 0 #fff !important;
+}
+
+.grid-container.layout-copy .price-card.has-image .price-tag-line,
+.grid-container.layout-copy .price-card.has-image .price-value {
+    color: #ffffff !important;
+    -webkit-text-stroke: 1.8px #000000 !important;
+    paint-order: stroke fill !important;
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6) !important;
 }
 
 .grid-container.layout-copy .price-card-mrp,

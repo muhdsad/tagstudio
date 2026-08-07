@@ -501,7 +501,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (unitClean.startsWith('/')) {
                     unitClean = unitClean.substring(1).trim();
                 }
-                unitClean = unitClean.replace(/^1\s*/i, '').toUpperCase();
 
                 card.onclick = () => openEditor(index);
                 const hasProductImg = showProductImages && Boolean(item.image);
@@ -557,7 +556,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (unitClean.startsWith('/')) {
                     unitClean = unitClean.substring(1).trim();
                 }
-                unitClean = unitClean.replace(/^1\s*/i, '').toUpperCase();
 
                 card.onclick = () => openEditor(index);
                 const hasProductImg = showProductImages && Boolean(item.image);
