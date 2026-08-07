@@ -629,10 +629,10 @@ body {
 .grid-container.layout-12 .price-value {
     font-size: 58px !important;
     font-family: 'Anton', sans-serif !important;
-    color: #ffffff !important;
-    -webkit-text-stroke: 1.8px #000000 !important;
+    color: #000000 !important;
+    -webkit-text-stroke: 1.8px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5) !important;
+    text-shadow: 0px 0px 4px #ffffff, 0px 0px 4px #ffffff !important;
     letter-spacing: 1.5px !important;
 }
 .grid-container.layout-12 .unit-value {
@@ -1118,10 +1118,10 @@ body {
     font-size: 56px !important;
     line-height: 0.9 !important;
     font-family: 'Anton', sans-serif !important;
-    color: #ffffff !important;
-    -webkit-text-stroke: 1.8px #000000 !important;
+    color: #000000 !important;
+    -webkit-text-stroke: 1.8px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5) !important;
+    text-shadow: 0px 0px 4px #ffffff, 0px 0px 4px #ffffff !important;
     letter-spacing: 1.5px !important;
 }
 .grid-container.layout-16-landscape .price-value.long-price,
@@ -1566,11 +1566,11 @@ body {
 .price-value {
     font-size: 44px;
     font-weight: 700;
-    color: #ffffff !important;
+    color: #000000 !important;
     font-family: 'Anton', sans-serif !important;
-    -webkit-text-stroke: 1.8px #000000 !important;
+    -webkit-text-stroke: 1.8px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5) !important;
+    text-shadow: 0px 0px 4px #ffffff, 0px 0px 4px #ffffff !important;
     letter-spacing: 1.5px !important;
     line-height: 0.95;
     flex-shrink: 0;
@@ -2522,10 +2522,10 @@ body {
 .price-card .price-value {
     font-family: 'Anton', sans-serif !important;
     font-weight: 700 !important;
-    color: #ffffff !important;
-    -webkit-text-stroke: 1.8px #000000 !important;
+    color: #000000 !important;
+    -webkit-text-stroke: 1.8px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5) !important;
+    text-shadow: 0px 0px 4px #ffffff, 0px 0px 4px #ffffff !important;
     letter-spacing: 1.5px !important;
     line-height: 0.95 !important;
     text-transform: uppercase !important;
@@ -3050,10 +3050,10 @@ body {
 
 .grid-container.layout-copy .price-card.has-image .price-tag-line,
 .grid-container.layout-copy .price-card.has-image .price-value {
-    color: #ffffff !important;
-    -webkit-text-stroke: 1.8px #000000 !important;
+    color: #000000 !important;
+    -webkit-text-stroke: 1.8px #ffffff !important;
     paint-order: stroke fill !important;
-    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.6) !important;
+    text-shadow: 0px 0px 4px #ffffff, 0px 0px 4px #ffffff !important;
 }
 
 .grid-container.layout-copy .price-card-mrp,
